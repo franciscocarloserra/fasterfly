@@ -1,4 +1,4 @@
-# fasterfly
+# 🪰 fasterfly
 
 The whole MaleCNS fly connectome, 165k neurons and 24.5M synapses, stepping at 3,455 Hz on one RTX 3090. Or 64 flies at once at 51k fly-steps/s. Same input, same spikes as `torch.sparse`, 4.9x to 72x faster.
 
