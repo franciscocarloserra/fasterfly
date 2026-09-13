@@ -1,0 +1,272 @@
+{
+  "params": {
+    "_note": "Native step-speed probe for the signed connectome. No browser, no server. Variants are run on identical input; total spike counts must agree (fp16 may drift slightly).",
+    "device": "cuda",
+    "steps": 500,
+    "warmup_steps": 20,
+    "variants": [
+      "csr",
+      "event_fused",
+      "event_fused_batched"
+    ],
+    "validate": true,
+    "out_dir": "escape/runs/event_kernel",
+    "event_block": 128,
+    "n_flies": [
+      1,
+      4,
+      16,
+      64
+    ],
+    "batched": {
+      "_note": "event_fused_batched validation: fly k gets stimulus seed stimulus.seed+k; rasters compared bit-exact against csr single-fly runs. fly_block = flies per scatter program (tile width).",
+      "enabled": true,
+      "fly_block": 16,
+      "out_dir": "escape/runs/batched"
+    },
+    "stimulus": {
+      "superclass": [
+        "visual_projection"
+      ],
+      "n_targets": 1024,
+      "rate_hz": 100.0,
+      "amplitude": 1.2,
+      "seed": 0
+    }
+  },
+  "run": {
+    "scatter": {
+      "all_ones": {
+        "max_abs_diff": 0.001800537109375,
+        "allclose": true
+      },
+      "top1000_outdeg": {
+        "max_abs_diff": 1.1444091796875e-05,
+        "allclose": true
+      },
+      "rand_1pct": {
+        "max_abs_diff": 4.76837158203125e-07,
+        "allclose": true
+      },
+      "rand_50pct": {
+        "max_abs_diff": 0.0005950927734375,
+        "allclose": true
+      }
+    },
+    "variants": {
+      "csr": {
+        "steps_per_s": 1608,
+        "spikes": 59338.0,
+        "pct_per_step": 0.07187170698029337
+      },
+      "event_fused": {
+        "steps_per_s": 3380,
+        "spikes": 59338.0,
+        "pct_per_step": 0.07187170698029337
+      },
+      "event_fused_batched": {
+        "steps_per_s": 2341,
+        "spikes": 59338.0,
+        "pct_per_step": 0.07187170698029337
+      }
+    },
+    "raster_diff": {
+      "events": 0,
+      "dn_events": 0
+    },
+    "csr_diff_events_per_seed": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 6942,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0,
+      "30": 0,
+      "31": 0,
+      "32": 0,
+      "33": 0,
+      "34": 0,
+      "35": 0,
+      "36": 0,
+      "37": 0,
+      "38": 0,
+      "39": 0,
+      "40": 0,
+      "41": 0,
+      "42": 0,
+      "43": 0,
+      "44": 0,
+      "45": 0,
+      "46": 0,
+      "47": 0,
+      "48": 0,
+      "49": 0,
+      "50": 0,
+      "51": 0,
+      "52": 0,
+      "53": 0,
+      "54": 0,
+      "55": 0,
+      "56": 0,
+      "57": 0,
+      "58": 0,
+      "59": 0,
+      "60": 0,
+      "61": 0,
+      "62": 0,
+      "63": 0
+    },
+    "batched_a": {
+      "csr": true,
+      "event_fused": true,
+      "csr_ref": true
+    },
+    "batched": {
+      "1": {
+        "steps_per_s": 3485,
+        "fly_steps_per_s": 3485,
+        "b_identical_ext": true,
+        "c_seed_per_fly": true,
+        "c_flies_identical_to_csr": 1,
+        "spikes_per_fly": [
+          59338
+        ]
+      },
+      "4": {
+        "steps_per_s": 2237,
+        "fly_steps_per_s": 8946,
+        "b_identical_ext": true,
+        "c_seed_per_fly": true,
+        "c_flies_identical_to_csr": 4,
+        "spikes_per_fly": [
+          59338,
+          59854,
+          59190,
+          59782
+        ]
+      },
+      "16": {
+        "steps_per_s": 1866,
+        "fly_steps_per_s": 29856,
+        "b_identical_ext": true,
+        "c_seed_per_fly": true,
+        "c_flies_identical_to_csr": 15,
+        "spikes_per_fly": [
+          59338,
+          59854,
+          59190,
+          59782,
+          60382,
+          59403,
+          59763,
+          59653,
+          59410,
+          58337,
+          60054,
+          59144,
+          59608,
+          60778,
+          59604,
+          59541
+        ]
+      },
+      "64": {
+        "steps_per_s": 799,
+        "fly_steps_per_s": 51159,
+        "b_identical_ext": true,
+        "c_seed_per_fly": true,
+        "c_flies_identical_to_csr": 63,
+        "spikes_per_fly": [
+          59338,
+          59854,
+          59190,
+          59782,
+          60382,
+          59403,
+          59763,
+          59653,
+          59410,
+          58337,
+          60054,
+          59144,
+          59608,
+          60778,
+          59604,
+          59541,
+          59651,
+          59189,
+          59571,
+          59563,
+          59230,
+          59728,
+          59532,
+          59703,
+          59354,
+          58961,
+          58452,
+          59672,
+          58923,
+          59702,
+          59189,
+          60231,
+          59277,
+          59642,
+          60025,
+          59469,
+          58538,
+          60038,
+          59939,
+          59916,
+          59420,
+          59312,
+          58688,
+          59447,
+          58946,
+          59313,
+          59421,
+          58767,
+          59747,
+          59279,
+          59265,
+          58917,
+          60023,
+          59338,
+          59852,
+          59302,
+          59077,
+          59551,
+          59146,
+          59735,
+          59307,
+          58824,
+          59917,
+          59523
+        ]
+      }
+    }
+  }
+}

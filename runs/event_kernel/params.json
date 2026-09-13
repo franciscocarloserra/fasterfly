@@ -1,0 +1,35 @@
+{
+  "_note": "Native step-speed probe for the signed connectome. No browser, no server. Variants are run on identical input; total spike counts must agree (fp16 may drift slightly).",
+  "device": "cuda",
+  "steps": 500,
+  "warmup_steps": 20,
+  "variants": [
+    "csr",
+    "event_fused",
+    "event_fused_batched"
+  ],
+  "validate": true,
+  "out_dir": "escape/runs/event_kernel",
+  "event_block": 128,
+  "n_flies": [
+    1,
+    4,
+    16,
+    64
+  ],
+  "batched": {
+    "_note": "event_fused_batched validation: fly k gets stimulus seed stimulus.seed+k; rasters compared bit-exact against csr single-fly runs. fly_block = flies per scatter program (tile width).",
+    "enabled": true,
+    "fly_block": 16,
+    "out_dir": "escape/runs/batched"
+  },
+  "stimulus": {
+    "superclass": [
+      "visual_projection"
+    ],
+    "n_targets": 1024,
+    "rate_hz": 100.0,
+    "amplitude": 1.2,
+    "seed": 0
+  }
+}

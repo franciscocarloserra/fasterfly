@@ -1,0 +1,6 @@
+venv
+data
+cache
+__pycache__/
+todelete/
+*.log

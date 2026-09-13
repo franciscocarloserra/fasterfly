@@ -1,0 +1,41 @@
+{
+  "data": {
+    "dir": "data/v1.0",
+    "annotations": "body-annotations-male-cns-v1.0-minconf-0.5.feather",
+    "neurotransmitters": "body-neurotransmitters-male-cns-v1.0.feather",
+    "weights": "connectome-weights-male-cns-v1.0-minconf-0.5-traced-only.feather",
+    "cache": "cache"
+  },
+  "graph": {
+    "status_keep": [
+      "Traced"
+    ],
+    "min_weight": 1
+  },
+  "neurotransmitter": {
+    "sign": {
+      "acetylcholine": 1.0,
+      "glutamate": -1.0,
+      "gaba": -1.0,
+      "dopamine": 0.0,
+      "octopamine": 0.0,
+      "serotonin": 0.0,
+      "histamine": -1.0,
+      "unknown": 0.0
+    },
+    "default_sign": 0.0,
+    "min_nt_confidence": 0.0
+  },
+  "lif": {
+    "dt_ms": 1.0,
+    "tau_m_ms": 20.0,
+    "v_rest": 0.0,
+    "v_threshold": 1.0,
+    "v_reset": 0.0,
+    "refractory_ms": 2.0,
+    "synaptic_gain": 0.003,
+    "bias_current": 0.0,
+    "noise_std": 0.0,
+    "seed": 0
+  }
+}
