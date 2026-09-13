@@ -1,0 +1,38 @@
+{
+  "steps": 300,
+  "warmup_steps": 20,
+  "stimulus": {
+    "superclass": [
+      "visual_projection"
+    ],
+    "n_targets": 1024,
+    "rate_hz": 100.0,
+    "amplitude": 1.2,
+    "seed": 0
+  },
+  "view": {
+    "x_axis": 0,
+    "y_axis": 2,
+    "flip_y": true,
+    "point_size": 0.35,
+    "active_size": 2.2
+  },
+  "style": {
+    "surface": "#0f0f0e",
+    "silent": "#3a3a37",
+    "cmap": "Blues",
+    "text": "#ffffff",
+    "text2": "#c3c2b7",
+    "accent": "#3987e5"
+  },
+  "title": "fasterfly",
+  "subtitle": "the whole MaleCNS connectome, 165k neurons and 24.5M synapses, on one RTX 3090",
+  "caption": "each dot is a neuron soma, blue = spiked during {steps} ms of looming input to visual projection neurons. every fly gets its own stimulus. 4.9x torch.sparse single fly, 72x with 64 flies.",
+  "n_flies": 16,
+  "grid": [
+    4,
+    4
+  ],
+  "single_label": "1 fly\n3,455 steps/s\n3.5x real time",
+  "batch_label": "16 flies, one launch\n1,866 steps/s each\n29,856 fly-steps/s"
+}

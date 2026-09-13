@@ -1,18 +1,33 @@
-# malecns-lif-kernels
+# fasterfly
 
-Event-driven LIF kernels for the full MaleCNS connectome: 165k neurons, 24.5M synapses, one RTX 3090.
+The whole MaleCNS fly connectome, 165k neurons and 24.5M synapses, stepping at 3,455 Hz on one RTX 3090. Or 64 flies at once at 51k fly-steps/s. Same input, same spikes as `torch.sparse`, 4.9x to 72x faster.
 
-`torch.sparse` gets you 708 steps/s. These kernels get 3,455 for a single fly, and 51k fly-steps/s if you batch 64 flies. Same input, same spikes.
+![fasterfly](docs/hero.png)
 
-![step speed](docs/step_speed.png)
+## Single fly vs many flies, concretely
 
-## Why
+**One fly, real time.** Membrane time step is 1 ms. `torch.sparse` COO does 708 steps/s, so one second of fly life takes 1.4 s of wall clock. fasterfly does 3,455 steps/s: one second of fly life in 0.29 s, 3.5x faster than real time. That is the number that matters if you are driving a fly in a game or a robot and need the brain to keep up with the world.
+
+**Many flies, throughput.** Put 16 flies in one batch and each step now takes 0.54 ms instead of 0.29, but it advances all 16. That is 29,856 fly-steps/s: 16 flies each living a second in 0.54 s of wall clock. With 64 flies it is 51,159 fly-steps/s, 72x what COO gives you for one. That is the number that matters if you are training a readout, sweeping parameters, or running many episodes.
+
+Batching does not make one fly faster. It makes the GPU stop wasting the launch.
+
+| | steps/s | wall clock per fly-second | vs torch.sparse COO |
+|---|---|---|---|
+| COO, 1 fly | 708 | 1.41 s | 1x |
+| fasterfly, 1 fly | 3,485 | 0.29 s | 4.9x |
+| fasterfly, 16 flies | 1,866 (x16) | 0.034 s | 42x |
+| fasterfly, 64 flies | 799 (x64) | 0.020 s | 72x |
+
+## Why it is faster
 
 At any given millisecond fewer than 200 of the 165k neurons fire, but a sparse matmul still walks all 24.5M synapses. So instead: one Triton program per presynaptic neuron, silent ones exit right away, fired ones `atomic_add` their weights into the postsynaptic current. A second kernel does the LIF update. That alone is 4.9x.
 
-Batching is the bigger win. Add a fly dimension to the state and the same launch serves N flies almost for free, because the cost was launch overhead, not synapses. 64 flies cost 4.4x one fly and give 64x the work. Useful for sweeps and for training readouts on many episodes at once. Not useful for a single fly's latency.
+Batching is the bigger win. Add a fly dimension to the state and the same launch serves N flies almost for free, because the cost was launch overhead, not synapses.
 
 The kernel doesn't know it's a fly. Any big sparse signed graph with ~0.1-1% activity per step will see the same numbers.
+
+![step speed](docs/step_speed.png)
 
 ## Numbers (RTX 3090, dt = 1 ms, fp32)
 
@@ -71,6 +86,7 @@ Full logs and per-run JSON: `runs/event_kernel/`, `runs/batched/`.
 |---|---|
 | `event_lif.py` | `EventFusedLIF`: Triton scatter kernel + LIF kernel, batched, reusable |
 | `fast_step.py` | Benchmark and validation of every backend on one stimulus |
+| `docs/hero.py`, `docs/step_speed.py` | Figures, numbers and knobs in the JSON next to each |
 | `fast_params.json` | Benchmark knobs: variants, steps, stimulus, `n_flies` list, kernel blocks |
 | `build_graph.py` | MaleCNS release tables → signed CSR (`cache/connectome_signed.npz`) + `cache/meta.parquet` |
 | `params.json` | Data paths, graph filters, neurotransmitter signs, LIF constants |
