@@ -1,20 +1,18 @@
 # malecns-lif-kernels
 
-**Simulate the whole MaleCNS fly connectome (165,122 neurons, 24.5M synapses) at 3,455 LIF steps/s on one RTX 3090. 4.9x faster than `torch.sparse` for a single fly, 72x more throughput with 64 flies in a batch. Same spikes, validated bit-for-bit where the arithmetic allows.**
+Event-driven LIF kernels for the full MaleCNS connectome: 165k neurons, 24.5M synapses, one RTX 3090.
+
+`torch.sparse` gets you 708 steps/s. These kernels get 3,455 for a single fly, and 51k fly-steps/s if you batch 64 flies. Same input, same spikes.
 
 ![step speed](docs/step_speed.png)
 
-## What you get
+## Why
 
-* **4.9x lower latency per step.** 708 → 3,455 steps/s on the full graph. With dt = 1 ms that is 3.5x faster than real time for one fly, where `torch.sparse` COO runs below real time.
-* **72x more throughput.** 64 flies in one batch give 51,159 fly-steps/s. Parameter sweeps and readout training over many episodes run in an hour instead of days.
-* **Drop-in.** One class, `EventFusedLIF`, takes a CSR matrix and LIF constants and returns the next state. No changes to the graph, the constants, or the stimulus.
-* **Validated.** Every backend runs the same input and produces the same 59,338 spikes; rasters are bit-identical to CSR on the validation seed and flies in a batch are bit-identical to the same fly alone.
-* **Generic.** Nothing in the kernel is fly-specific: any large sparse signed graph with ~0.1-1% activity per step gets the same gains.
+At any given millisecond fewer than 200 of the 165k neurons fire, but a sparse matmul still walks all 24.5M synapses. So instead: one Triton program per presynaptic neuron, silent ones exit right away, fired ones `atomic_add` their weights into the postsynaptic current. A second kernel does the LIF update. That alone is 4.9x.
 
-## How it works
+Batching is the bigger win. Add a fly dimension to the state and the same launch serves N flies almost for free, because the cost was launch overhead, not synapses. 64 flies cost 4.4x one fly and give 64x the work. Useful for sweeps and for training readouts on many episodes at once. Not useful for a single fly's latency.
 
-`torch.sparse` multiplies the whole matrix by the spike vector every step, touching all 24.5M synapses when fewer than 200 neurons fired. The event-driven kernel launches one Triton program per presynaptic neuron; silent ones return immediately and fired ones `atomic_add` their outgoing weights into the input current. A second elementwise kernel applies the LIF update. Batching adds a fly dimension to the state, so one launch serves N flies.
+The kernel doesn't know it's a fly. Any big sparse signed graph with ~0.1-1% activity per step will see the same numbers.
 
 ## Numbers (RTX 3090, dt = 1 ms, fp32)
 
